@@ -1,303 +1,247 @@
-language: jsx
-name: "Wyszukiwarka Placówek Edukacyjnych - Włochy (Pełna Lista)"
-code: `
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8" />
-    <title>Edukacja Włochy – Pełna Lista Placówek</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .app-header { 
-            background: linear-gradient(135deg, #1e3c72, #2a5298); 
-            color: #fff; 
-            padding: 3rem 1rem; 
-            margin-bottom: 2rem; 
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .facility-card { 
-            transition: transform 0.2s, box-shadow 0.2s; 
-            cursor: pointer; 
-            border: none; 
-            border-radius: 15px;
-        }
-        .facility-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
-        }
-        .badge-type-zlobek { background-color: #e83e8c; }
-        .badge-type-przedszkole { background-color: #fd7e14; }
-        .badge-type-szkola { background-color: #28a745; }
-        .badge-type-liceum { background-color: #007bff; }
-        .badge-status-publiczna { background-color: #6c757d; }
-        .badge-status-prywatna { background-color: #17a2b8; }
-        
-        .rating-pill { border-radius: 50px; padding: 0.4rem 1rem; font-weight: 600; font-size: 0.9rem; }
-        .rating-good { background-color: #d4edda; color: #155724; }
-        .rating-mid { background-color: #fff3cd; color: #856404; }
-        .rating-bad { background-color: #f8d7da; color: #721c24; }
-        
-        .opinion-card { border-radius: 10px; border-left: 5px solid #007bff; margin-bottom: 1rem; background: #fff; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Włochy — wyszukiwarka placówek oświatowych</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;padding:0;background:#f6f7fb;color:#111}
+    header{background:#0b5fff;color:#fff;padding:20px 16px}
+    header h1{margin:0;font-size:20px}
+    .container{max-width:1000px;margin:20px auto;padding:0 16px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    input[type=text], select{padding:8px;border:1px solid #ccd;padding-left:10px;border-radius:6px;min-width:180px}
+    .list{display:grid;grid-template-columns:1fr;gap:12px}
+    .card{background:#fff;border-radius:8px;padding:12px;border:1px solid #e1e4ef;box-shadow:0 1px 2px rgba(12,15,30,0.03)}
+    .meta{font-size:13px;color:#444;margin-bottom:6px}
+    .phone, .address{display:block}
+    .actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+    .btn{background:#0b5fff;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer}
+    .btn.ghost{background:#eef2ff;color:#0b5fff;border:1px solid #dfeaff}
+    .opinions{margin-top:8px;background:#fafbff;padding:8px;border-radius:6px;border:1px dashed #e8ecff}
+    .opinion{border-top:1px dashed #e8ecff;padding-top:8px;margin-top:8px}
+    .small{font-size:13px;color:#666}
+    footer{padding:16px;text-align:center;color:#666;font-size:13px}
+    .source{font-size:12px;color:#666}
+  </style>
 </head>
 <body>
-
-<header class="app-header">
+  <header>
     <div class="container">
-        <h1 class="fw-bold">Otwarte Włochy – Baza Edukacyjna</h1>
-        <p class="lead">Wszystkie żłobki, przedszkola i szkoły w naszej dzielnicy</p>
+      <h1>Włochy — wyszukiwarka placówek oświatowych (żłobki, przedszkola, szkoły)</h1>
+      <div class="small">Dane pobrane ze stron dzielnicy / DBFO i stron placówek. Proszę zweryfikować przy oficjalnym kontakcie.</div>
     </div>
-</header>
+  </header>
 
-<main class="container mb-5">
-    <div class="card shadow-sm mb-4 border-0">
-        <div class="card-body p-4">
-            <div class="row g-3">
-                <div class="col-md-5">
-                    <label class="form-label fw-bold">Wyszukaj (nazwa lub ulica)</label>
-                    <input type="text" id="searchInput" class="form-control" placeholder="np. Cietrzewia, SP 94, Astronautów...">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Typ placówki</label>
-                    <select id="typeFilter" class="form-select">
-                        <option value="">Wszystkie</option>
-                        <option value="zlobek">Żłobki</option>
-                        <option value="przedszkole">Przedszkola</option>
-                        <option value="szkola">Szkoły Podstawowe</option>
-                        <option value="liceum">Licea / Technika</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Status</label>
-                    <select id="statusFilter" class="form-select">
-                        <option value="">Wszystkie</option>
-                        <option value="publiczna">Publiczne</option>
-                        <option value="prywatna">Prywatne</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Sortowanie</label>
-                    <select id="sortSelect" class="form-select">
-                        <option value="ratingDesc">Najlepsze oceny</option>
-                        <option value="opinionsDesc">Najwięcej opinii</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+  <main class="container">
+    <div class="controls">
+      <input id="search" type="text" placeholder="Szukaj nazwy, adresu lub telefonu..." />
+      <select id="filter">
+        <option value="all">Wszystkie typy</option>
+        <option value="żłobek">Żłobek</option>
+        <option value="przedszkole">Przedszkole</option>
+        <option value="szkoła podstawowa">Szkoła podstawowa</option>
+        <option value="liceum / zespół szkół">Liceum / zespół szkół</option>
+        <option value="poradnia">Poradnia / inne</option>
+      </select>
+      <button class="btn" id="clear">Wyczyść</button>
+      <button class="btn ghost" id="export">Eksport JSON</button>
     </div>
 
-    <div id="facilitiesList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
-</main>
+    <div id="count" class="small"></div>
 
-<!-- MODAL SZCZEGÓŁÓW -->
-<div class="modal fade" id="facilityModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title fw-bold" id="facilityModalLabel"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="facilityDetails" class="mb-4 p-3 bg-white rounded border"></div>
-                <h6 class="fw-bold mb-3">Opinie mieszkańców:</h6>
-                <div id="opinionsList"></div>
-                
-                <div class="card bg-light mt-4 border-0">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Dodaj opinię o tej placówce</h6>
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <select id="newRating" class="form-select">
-                                    <option value="5">5 - Bardzo polecam</option>
-                                    <option value="4">4 - Polecam</option>
-                                    <option value="3">3 - Przeciętnie</option>
-                                    <option value="2">2 - Słabo</option>
-                                    <option value="1">1 - Nie polecam</option>
-                                </select>
-                            </div>
-                            <div class="col-md-8">
-                                <input type="text" id="newPlus" class="form-control" placeholder="Co oceniasz pozytywnie?">
-                            </div>
-                            <div class="col-12">
-                                <textarea id="newMinus" class="form-control" rows="2" placeholder="Co wymaga poprawy?"></textarea>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button id="saveBtn" class="btn btn-primary px-4">Dodaj opinię</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="list" class="list"></div>
+  </main>
+
+  <footer>
+    <div class="source">
+      Źródła: <a href="https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" target="_blank">DBFO Włochy — placówki oświatowe</a>,
+      <a href="https://wlochy.um.warszawa.pl/szkoly-podstawowe" target="_blank">wlochy.um.warszawa.pl</a>,
+      <a href="https://szkola.waw.pl/podstawowa/wlochy" target="_blank">szkola.waw.pl (Włochy)</a>
     </div>
-</div>
+    <div style="margin-top:6px">Data wygenerowania: <!-- will be filled by script --></div>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-const Facilities = [
-    // SZKOŁY PODSTAWOWE
-    { id: 1, nazwa: "Szkoła Podstawowa nr 94 im. I Marszałka Polski Józefa Piłsudskiego", typ: "szkola", status: "publiczna", ulica: "ul. Cietrzewia 22a", telefon: "22 863 73 12", opinie: [] },
-    { id: 2, nazwa: "Szkoła Podstawowa nr 66 im. ks. Juliana Chrościckiego", typ: "szkola", status: "publiczna", ulica: "ul. Przepiórki 16/18", telefon: "22 863 10 21", opinie: [] },
-    { id: 3, nazwa: "Szkoła Podstawowa nr 227 im. kpt. Lucyny Hertz", typ: "szkola", status: "publiczna", ulica: "ul. Astronautów 17", telefon: "22 846 03 81", opinie: [] },
-    { id: 4, nazwa: "Szkoła Podstawowa nr 87 im. 7 PP AK 'Garłuch'", typ: "szkola", status: "publiczna", ulica: "ul. Malownicza 31", telefon: "22 846 04 29", opinie: [] },
-    { id: 5, nazwa: "Szkoła Podstawowa nr 359", typ: "szkola", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
-    { id: 6, nazwa: "Społeczna Szkoła Podstawowa nr 30 STO", typ: "szkola", status: "prywatna", ulica: "ul. Astronautów 11", telefon: "22 846 01 62", opinie: [] },
-    { id: 7, nazwa: "Chrześcijańska Szkoła Podstawowa 'Samuel'", typ: "szkola", status: "prywatna", ulica: "ul. Krakowiaków 80/98", telefon: "22 886 51 52", opinie: [] },
+  <script>
+    // Dane placówek (skompilowane z oficjalnych źródeł: DBFO, stron szkół, szkola.waw.pl)
+    // Jeśli chcesz dodać więcej placówek, dopisz obiekty do tablicy poniżej.
+    const facilities = [
+      // Przedszkola (publiczne) - przykłady z DBFO
+      { id: "p22", type: "przedszkole", name: "Przedszkole nr 22", address: "ul. Żwirki i Wigury 15b, 02-143 Warszawa", phone: "22 846-20-40", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p29", type: "przedszkole", name: "Przedszkole nr 29", address: "ul. Sycowska 1, 02-266 Warszawa", phone: "22 846-02-33", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p60", type: "przedszkole", name: "Przedszkole nr 60", address: "ul. Rybnicka 42/44, 02-432 Warszawa", phone: "22 863-72-73", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p71", type: "przedszkole", name: "Przedszkole nr 71", address: "ul. Śląska 50/52, 02-462 Warszawa", phone: "22 863-74-51", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p77", type: "przedszkole", name: "Przedszkole nr 77 \"Akademia Pana Kleksa\"", address: "ul. Potrzebna 16, 02-448 Warszawa", phone: "22 863-72-93", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p78", type: "przedszkole", name: "Przedszkole nr 78", address: "ul. Lechicka 12D, 02-156 Warszawa", phone: "22 846-09-61", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p313", type: "przedszkole", name: "Przedszkole nr 313", address: "ul. Sulmierzycka 1, 02-139 Warszawa", phone: "22 846-10-00", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p314", type: "przedszkole", name: "Przedszkole nr 314 (Integracyjne)", address: "ul. 1-Sierpnia 36a, 02-134 Warszawa", phone: "22 886-08-88", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p419", type: "przedszkole", name: "Przedszkole nr 419", address: "ul. Ryżowa 17, 02-489 Warszawa", phone: "22 863 01 27 / 22 863 98 55", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p443", type: "przedszkole", name: "Przedszkole nr 443", address: "ul. Parowcowa 53, 02-440 Warszawa", phone: "668 961 778", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p448", type: "przedszkole", name: "Przedszkole nr 448", address: "ul. Łopuszańska 57A, 02-232 Warszawa", phone: "22 875 15 79", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "p449", type: "przedszkole", name: "Przedszkole nr 449", address: "ul. Krakowiaków 28, 02-255 Warszawa", phone: "", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
 
-    // LICEA
-    { id: 8, nazwa: "LXXIII Liceum Ogólnokształcące im. Władysława Reymonta", typ: "liceum", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
-    { id: 9, nazwa: "Technikum nr 20 (Zespół Szkół im. Bohaterów Narwiku)", typ: "liceum", status: "publiczna", ulica: "ul. Gładka 16", telefon: "22 846 34 11", opinie: [] },
+      // Szkoły podstawowe (przykładowe wpisy z DBFO / wlochy.um.warszawa.pl / szkola.waw.pl)
+      { id: "sp66", type: "szkoła podstawowa", name: "Szkoła Podstawowa nr 66 im. ks. Juliana Chrościckiego", address: "ul. Przepiórki 16/18, 02-407 Warszawa", phone: "22 863-59-46", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "sp87", type: "szkoła podstawowa", name: "Szkoła Podstawowa z Oddziałami Integracyjnymi nr 87", address: "ul. Malownicza 31, 02-272 Warszawa", phone: "22 846-22-02", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "sp88", type: "szkoła podstawowa", name: "Szkoła Podstawowa nr 88 im. Gabriela Narutowicza", address: "ul. Radarowa 4b, 02-137 Warszawa", phone: "22 846-09-32", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "sp94", type: "szkoła podstawowa", name: "Szkoła Podstawowa nr 94 im. I Marszałka Polski Józefa Piłsudskiego", address: "ul. Cietrzewia 22a, 02-492 Warszawa", phone: "22 863-73-12", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "sp227", type: "szkoła podstawowa", name: "Szkoła Podstawowa nr 227 (Zespół Szkolno-Przedszkolny nr 5)", address: "ul. Astronautów 17, 02-154 Warszawa", phone: "22 846-03-81", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "sp359", type: "szkoła podstawowa", name: "Szkoła Podstawowa nr 359 (Zespół Szkół nr 17)", address: "ul. Promienista 12a, 02-428 Warszawa", phone: "22 863-73-04", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "spo30", type: "szkoła podstawowa", name: "Społeczna Szkoła Podstawowa nr 30 (STO)", address: "ul. Astronautów 11, 02-154 Warszawa", phone: "22 846 01 62 / 22 846 04 83", source: "https://astronautow.szkolnastrona.pl/p,125,osir-dzielnicy-wlochy" },
 
-    // PRZEDSZKOLA
-    { id: 10, nazwa: "Przedszkole nr 175", typ: "przedszkole", status: "publiczna", ulica: "ul. Astronautów 5", telefon: "22 846 19 14", opinie: [] },
-    { id: 11, nazwa: "Przedszkole nr 71", typ: "przedszkole", status: "publiczna", ulica: "ul. Geodetów 7", telefon: "22 846 25 12", opinie: [] },
-    { id: 12, nazwa: "Przedszkole nr 60", typ: "przedszkole", status: "publiczna", ulica: "ul. Ryżowa 17", telefon: "22 863 83 13", opinie: [] },
-    { id: 13, nazwa: "Przedszkole nr 313", typ: "przedszkole", status: "publiczna", ulica: "ul. Jasińskiego 2", telefon: "22 863 75 15", opinie: [] },
-    { id: 14, nazwa: "Przedszkole nr 419", typ: "przedszkole", status: "publiczna", ulica: "ul. Ryżowa 17 (filia)", telefon: "22 863 83 13", opinie: [] },
-    { id: 15, nazwa: "Niepubliczne Przedszkole 'Tęczowy Ogród'", typ: "przedszkole", status: "prywatna", ulica: "ul. Hynka 4", telefon: "22 403 55 55", opinie: [] },
+      // Zespoły szkół / licea
+      { id: "narwik", type: "liceum / zespół szkół", name: "Zespół Szkół im. Bohaterów Narwiku", address: "ul. Gładka 16, 02-172 Warszawa", phone: "22 846-09-42", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
+      { id: "clix", type: "liceum / zespół szkół", name: "CLIX Liceum Ogólnokształcące", address: "ul. Solipska 17/19, 02-482 Warszawa", phone: "22 863-77-87", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
 
-    // ŻŁOBKI
-    { id: 16, nazwa: "Żłobek nr 32", typ: "zlobek", status: "publiczna", ulica: "ul. Chrościckiego 14/16", telefon: "22 863 71 10", opinie: [] },
-    { id: 17, nazwa: "Żłobek nr 65", typ: "zlobek", status: "publiczna", ulica: "ul. Astronautów 3", telefon: "22 846 19 14", opinie: [] },
-    { id: 18, nazwa: "Żłobek nr 72", typ: "zlobek", status: "publiczna", ulica: "ul. 1 Sierpnia 36a", telefon: "22 846 34 11", opinie: [] }
-];
+      // Inne (poradnia)
+      { id: "ppp22", type: "poradnia", name: "Poradnia Psychologiczno-Pedagogiczna nr 22", address: "ul. Malownicza 31, 02-272 Warszawa", phone: "22 846-19-18", source: "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe" },
 
-const LS_KEY = "wlochy_edu_v2";
-let currentId = null;
+      // Prywatne żłobki / przedszkola - przykładowe (należy weryfikować adresy/telefony)
+      { id: "anteczek", type: "żłobek", name: "Żłobek / Klub Malucha 'Anteczek' (prywatny)", address: "Włochy, (sprawdź na stronie)", phone: "", source: "https://www.anteczek.pl/" },
+      { id: "kochanymaluch", type: "żłobek", name: "Kochany Maluch (prywatny)", address: "Włochy, (sprawdź na stronie)", phone: "", source: "https://www.kochanymaluch.pl/" },
+      { id: "zielonawieza", type: "przedszkole", name: "Zielona Wieża (prywatne przedszkole)", address: "Włochy, (sprawdź na stronie)", phone: "", source: "https://zielonawieza.pl/wlochy/" }
+    ];
 
-function getLocalOpinions() {
-    return JSON.parse(localStorage.getItem(LS_KEY) || "{}");
-}
+    // LocalStorage klucz opinii
+    const STORAGE_KEY = 'wlochy_placowki_opinie_v1';
 
-function getAllOpinions(fId) {
-    const facility = Facilities.find(f => f.id === fId);
-    const local = getLocalOpinions()[fId] || [];
-    return [...(facility.opinie || []), ...local];
-}
+    // Load opinions from localStorage
+    const opinionsStore = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-function getAvg(fId) {
-    const ops = getAllOpinions(fId);
-    if (!ops.length) return 0;
-    return ops.reduce((a, b) => a + b.ocena, 0) / ops.length;
-}
-
-function render() {
-    const search = document.getElementById("searchInput").value.toLowerCase();
-    const type = document.getElementById("typeFilter").value;
-    const status = document.getElementById("statusFilter").value;
-    const sort = document.getElementById("sortSelect").value;
-
-    let filtered = Facilities.filter(f => {
-        const matchesSearch = f.nazwa.toLowerCase().includes(search) || f.ulica.toLowerCase().includes(search);
-        const matchesType = !type || f.typ === type;
-        const matchesStatus = !status || f.status === status;
-        return matchesSearch && matchesType && matchesStatus;
-    });
-
-    filtered.sort((a, b) => {
-        if (sort === "ratingDesc") return getAvg(b.id) - getAvg(a.id);
-        if (sort === "opinionsDesc") return getAllOpinions(b.id).length - getAllOpinions(a.id).length;
-        return 0;
-    });
-
-    const list = document.getElementById("facilitiesList");
-    list.innerHTML = filtered.map(f => {
-        const avg = getAvg(f.id);
-        const count = getAllOpinions(f.id).length;
-        const typeLabel = {zlobek: "Żłobek", przedszkole: "Przedszkole", szkola: "Podstawówka", liceum: "Liceum/Technikum"}[f.typ];
-        
-        return `
-            <div class="col">
-                <div class="card facility-card h-100 shadow-sm" onclick="openModal(${f.id})">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="badge badge-type-${f.typ}">${typeLabel}</span>
-                            <span class="badge badge-status-${f.status}">${f.status}</span>
-                        </div>
-                        <h6 class="card-title fw-bold mb-1">${f.nazwa}</h6>
-                        <p class="small text-muted mb-3"><i class="bi bi-geo-alt"></i> ${f.ulica}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <span class="rating-pill ${avg >= 4 ? 'rating-good' : (avg >= 3 ? 'rating-mid' : (avg > 0 ? 'rating-bad' : 'bg-light text-muted'))}">
-                                ${avg > 0 ? avg.toFixed(1) + ' / 5' : 'Brak ocen'}
-                            </span>
-                            <small class="text-muted fw-bold">${count} opinii</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join("");
-}
-
-window.openModal = (id) => {
-    currentId = id;
-    const f = Facilities.find(x => x.id === id);
-    document.getElementById("facilityModalLabel").innerText = f.nazwa;
-    document.getElementById("facilityDetails").innerHTML = `
-        <div class="row">
-            <div class="col-sm-6"><b>Adres:</b> ${f.ulica}</div>
-            <div class="col-sm-6"><b>Telefon:</b> ${f.telefon}</div>
-            <div class="col-sm-6"><b>Typ:</b> ${f.typ.toUpperCase()}</div>
-            <div class="col-sm-6"><b>Status:</b> ${f.status}</div>
-        </div>
-    `;
-    renderOpinions();
-    new bootstrap.Modal(document.getElementById('facilityModal')).show();
-};
-
-function renderOpinions() {
-    const ops = getAllOpinions(currentId);
-    const container = document.getElementById("opinionsList");
-    if (!ops.length) {
-        container.innerHTML = "<div class='alert alert-light text-center'>Brak opinii. Dodaj pierwszą!</div>";
-        return;
+    // Helpers
+    function countVisible(list) {
+      return list.length;
     }
-    container.innerHTML = ops.map(o => `
-        <div class="opinion-card p-3 shadow-sm">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge bg-primary">Ocena: ${o.ocena}/5</span>
-                <small class="text-muted">${o.data}</small>
+
+    function renderList(items) {
+      const listEl = document.getElementById('list');
+      listEl.innerHTML = '';
+      items.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>${escapeHtml(f.name)}</strong>
+              <div class="meta small">${escapeHtml(f.type)} • <span class="source"><a href="${f.source}" target="_blank">źródło</a></span></div>
             </div>
-            <p class="mb-1 text-success"><b>+</b> ${o.plusy}</p>
-            ${o.minusy ? `<p class="mb-0 text-danger"><b>-</b> ${o.minusy}</p>` : ''}
-        </div>
-    `).reverse().join("");
-}
+            <div style="text-align:right">
+              <div class="small">${escapeHtml(f.address)}</div>
+              <div class="small"><span class="phone">tel: ${escapeHtml(f.phone || '—')}</span></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost" data-id="${f.id}" onclick="showOpinionForm('${f.id}')">Dodaj opinię</button>
+            <button class="btn" onclick="copyPhone('${f.phone}')">Kopiuj telefon</button>
+          </div>
+          <div id="opinions-${f.id}" class="opinions">
+            ${renderOpinionsHtml(f.id)}
+            <div id="opform-${f.id}" style="display:none;margin-top:8px;">
+              <label class="small">Ocena: <select id="rating-${f.id}"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+              <div><textarea id="comment-${f.id}" rows="3" style="width:100%;margin-top:6px;padding:6px;border:1px solid #ddd;border-radius:6px" placeholder="Napisz krótką opinię..."></textarea></div>
+              <div style="margin-top:6px"><button class="btn" onclick="saveOpinion('${f.id}')">Zapisz opinię</button> <button class="btn ghost" onclick="hideOpinionForm('${f.id}')">Anuluj</button></div>
+            </div>
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
 
-document.getElementById("saveBtn").onclick = () => {
-    const plus = document.getElementById("newPlus").value.trim();
-    const minus = document.getElementById("newMinus").value.trim();
-    const rating = parseInt(document.getElementById("newRating").value);
-    
-    if (!plus) return alert("Napisz chociaż krótki plus!");
+      document.getElementById('count').textContent = `Znaleziono: ${items.length} placówek`;
+    }
 
-    const local = getLocalOpinions();
-    if (!local[currentId]) local[currentId] = [];
-    
-    local[currentId].push({
-        ocena: rating,
-        plusy: plus,
-        minusy: minus,
-        data: new Date().toLocaleDateString('pl-PL')
-    });
+    function renderOpinionsHtml(id) {
+      const arr = opinionsStore[id] || [];
+      if (!arr.length) return '<div class="small">Brak opinii — bądź pierwszy/a, który oceni!</div>';
+      return arr.map(o => `<div class="opinion"><div><strong>Ocena: ${o.rating}/5</strong> <span class="small">— ${escapeHtml(o.date)}</span></div><div>${escapeHtml(o.text)}</div></div>`).join('');
+    }
 
-    localStorage.setItem(LS_KEY, JSON.stringify(local));
-    document.getElementById("newPlus").value = "";
-    document.getElementById("newMinus").value = "";
-    renderOpinions();
-    render();
-};
+    function showOpinionForm(id) {
+      document.getElementById(`opform-${id}`).style.display = 'block';
+    }
+    function hideOpinionForm(id) {
+      document.getElementById(`opform-${id}`).style.display = 'none';
+    }
 
-document.getElementById("searchInput").oninput = render;
-document.getElementById("typeFilter").onchange = render;
-document.getElementById("statusFilter").onchange = render;
-document.getElementById("sortSelect").onchange = render;
+    function saveOpinion(id) {
+      const rating = document.getElementById(`rating-${id}`).value;
+      const text = document.getElementById(`comment-${id}`).value.trim();
+      if (!text) { alert('Proszę wpisać komentarz.'); return; }
+      const rec = { rating, text, date: new Date().toLocaleString('pl-PL') };
+      opinionsStore[id] = opinionsStore[id] || [];
+      opinionsStore[id].unshift(rec);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(opinionsStore));
+      // re-render specific opinions
+      document.getElementById(`opinions-${id}`).innerHTML = renderOpinionsHtml(id) + document.getElementById(`opform-${id}`).outerHTML;
+      // hide form
+      hideOpinionForm(id);
+      // clear textarea
+      const ta = document.getElementById(`comment-${id}`); if (ta) ta.value = '';
+      alert('Opinia zapisana (lokalnie w przeglądarce).');
+      // full re-render
+      applyFilters();
+    }
 
-render();
-</script>
+    function copyPhone(phone) {
+      if (!phone) { alert('Brak numeru telefonu'); return; }
+      navigator.clipboard?.writeText(phone).then(()=>alert('Numer skopiowany: ' + phone)).catch(()=>alert('Kopiowanie nie powiodło się. Skopiuj ręcznie: ' + phone));
+    }
+
+    // Search / filtering
+    function applyFilters() {
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const type = document.getElementById('filter').value;
+      let filtered = facilities.filter(f => {
+        const matchQ = !q || (f.name && f.name.toLowerCase().includes(q)) || (f.address && f.address.toLowerCase().includes(q)) || (f.phone && f.phone.toLowerCase().includes(q));
+        const matchType = (type === 'all') || (f.type === type);
+        return matchQ && matchType;
+      });
+      renderList(filtered);
+    }
+
+    // Utility to escape HTML in inserted strings
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Export JSON
+    function exportJson() {
+      const data = {
+        generatedAt: new Date().toISOString(),
+        sourceUrls: [
+          "https://www.dbfo-wlochy.waw.pl/placowki-oswiatowe",
+          "https://wlochy.um.warszawa.pl/szkoly-podstawowe",
+          "https://szkola.waw.pl/podstawowa/wlochy"
+        ],
+        facilities,
+        opinions: opinionsStore
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'wlochy_placowki.json'; document.body.appendChild(a); a.click();
+      a.remove(); URL.revokeObjectURL(url);
+    }
+
+    // Init
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('filter').addEventListener('change', applyFilters);
+    document.getElementById('clear').addEventListener('click', ()=>{ document.getElementById('search').value=''; document.getElementById('filter').value='all'; applyFilters(); });
+    document.getElementById('export').addEventListener('click', exportJson);
+
+    // display date in footer
+    document.querySelector('footer div:nth-child(2)').textContent = 'Data wygenerowania: ' + new Date().toLocaleString('pl-PL');
+
+    // initial render
+    applyFilters();
+
+    // expose for debugging (optional)
+    window._WLOCHY = { facilities, opinionsStore };
+  </script>
 </body>
 </html>
-`
