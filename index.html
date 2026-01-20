@@ -1,87 +1,85 @@
 language: jsx
-name: "Wyszukiwarka Placówek Edukacyjnych - Włochy"
+name: "Wyszukiwarka Placówek Edukacyjnych - Włochy (Pełna Lista)"
 code: `
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8" />
-    <title>Edukacja Włochy – Wyszukiwarka i Opinie</title>
+    <title>Edukacja Włochy – Pełna Lista Placówek</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .app-header { 
-            background: linear-gradient(135deg, #0044cc, #00cc99); 
+            background: linear-gradient(135deg, #1e3c72, #2a5298); 
             color: #fff; 
-            padding: 2.5rem 1rem; 
+            padding: 3rem 1rem; 
             margin-bottom: 2rem; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .facility-card { 
-            transition: all 0.2s ease; 
+            transition: transform 0.2s, box-shadow 0.2s; 
             cursor: pointer; 
             border: none; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 15px;
         }
         .facility-card:hover { 
             transform: translateY(-5px); 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
         }
-        .badge-type-zlobek { background-color: #6f42c1; }
+        .badge-type-zlobek { background-color: #e83e8c; }
         .badge-type-przedszkole { background-color: #fd7e14; }
-        .badge-type-szkola { background-color: #198754; }
-        .badge-type-liceum { background-color: #0d6efd; }
+        .badge-type-szkola { background-color: #28a745; }
+        .badge-type-liceum { background-color: #007bff; }
         .badge-status-publiczna { background-color: #6c757d; }
-        .badge-status-prywatna { background-color: #20c997; }
+        .badge-status-prywatna { background-color: #17a2b8; }
         
-        .rating-pill { border-radius: 20px; padding: 0.3rem 0.8rem; font-weight: bold; }
-        .rating-good { background-color: #d1e7dd; color: #0f5132; }
-        .rating-mid { background-color: #fff3cd; color: #664d03; }
-        .rating-bad { background-color: #f8d7da; color: #842029; }
+        .rating-pill { border-radius: 50px; padding: 0.4rem 1rem; font-weight: 600; font-size: 0.9rem; }
+        .rating-good { background-color: #d4edda; color: #155724; }
+        .rating-mid { background-color: #fff3cd; color: #856404; }
+        .rating-bad { background-color: #f8d7da; color: #721c24; }
         
-        .opinion-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 1rem; }
-        .tag-badge { font-size: 0.7rem; margin-right: 4px; }
+        .opinion-card { border-radius: 10px; border-left: 5px solid #007bff; margin-bottom: 1rem; background: #fff; }
     </style>
 </head>
 <body>
 
-<header class="app-header text-center">
+<header class="app-header">
     <div class="container">
-        <h1 class="display-5 fw-bold">Edukacja we Włochach</h1>
-        <p class="lead">Wyszukiwarka żłobków, przedszkoli i szkół w Twojej okolicy</p>
+        <h1 class="fw-bold">Otwarte Włochy – Baza Edukacyjna</h1>
+        <p class="lead">Wszystkie żłobki, przedszkola i szkoły w naszej dzielnicy</p>
     </div>
 </header>
 
 <main class="container mb-5">
-    <!-- FILTRY -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body p-4">
             <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Szukaj placówki</label>
-                    <input type="text" id="searchInput" class="form-control" placeholder="np. SP 94, Cietrzewia, Tęczowy...">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Wyszukaj (nazwa lub ulica)</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="np. Cietrzewia, SP 94, Astronautów...">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Typ</label>
+                    <label class="form-label fw-bold">Typ placówki</label>
                     <select id="typeFilter" class="form-select">
                         <option value="">Wszystkie</option>
                         <option value="zlobek">Żłobki</option>
                         <option value="przedszkole">Przedszkola</option>
                         <option value="szkola">Szkoły Podstawowe</option>
-                        <option value="liceum">Szkoły Ponadpodstawowe</option>
+                        <option value="liceum">Licea / Technika</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label fw-bold">Status</label>
                     <select id="statusFilter" class="form-select">
                         <option value="">Wszystkie</option>
                         <option value="publiczna">Publiczne</option>
-                        <option value="prywatna">Niepubliczne</option>
+                        <option value="prywatna">Prywatne</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label fw-bold">Sortuj</label>
+                    <label class="form-label fw-bold">Sortowanie</label>
                     <select id="sortSelect" class="form-select">
                         <option value="ratingDesc">Najlepsze oceny</option>
                         <option value="opinionsDesc">Najwięcej opinii</option>
@@ -91,47 +89,43 @@ code: `
         </div>
     </div>
 
-    <!-- LISTA -->
-    <div id="facilitiesList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <!-- JS wstrzyknie karty -->
-    </div>
+    <div id="facilitiesList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
 </main>
 
-<!-- MODAL -->
+<!-- MODAL SZCZEGÓŁÓW -->
 <div class="modal fade" id="facilityModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
             <div class="modal-header bg-light">
                 <h5 class="modal-title fw-bold" id="facilityModalLabel"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="facilityInfo" class="mb-4"></div>
-                <hr>
-                <h6 class="fw-bold mb-3">Opinie rodziców i uczniów:</h6>
+                <div id="facilityDetails" class="mb-4 p-3 bg-white rounded border"></div>
+                <h6 class="fw-bold mb-3">Opinie mieszkańców:</h6>
                 <div id="opinionsList"></div>
                 
-                <div class="card bg-light mt-4">
+                <div class="card bg-light mt-4 border-0">
                     <div class="card-body">
-                        <h6 class="fw-bold">Dodaj swoją opinię (Lokalnie)</h6>
+                        <h6 class="fw-bold">Dodaj opinię o tej placówce</h6>
                         <div class="row g-2">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <select id="newRating" class="form-select">
-                                    <option value="5">5 (Super)</option>
-                                    <option value="4">4 (Dobrze)</option>
-                                    <option value="3">3 (Średnio)</option>
-                                    <option value="2">2 (Słabo)</option>
-                                    <option value="1">1 (Odradzam)</option>
+                                    <option value="5">5 - Bardzo polecam</option>
+                                    <option value="4">4 - Polecam</option>
+                                    <option value="3">3 - Przeciętnie</option>
+                                    <option value="2">2 - Słabo</option>
+                                    <option value="1">1 - Nie polecam</option>
                                 </select>
                             </div>
-                            <div class="col-md-9">
-                                <input type="text" id="newPlus" class="form-control" placeholder="Co jest na plus?">
+                            <div class="col-md-8">
+                                <input type="text" id="newPlus" class="form-control" placeholder="Co oceniasz pozytywnie?">
                             </div>
                             <div class="col-12">
-                                <textarea id="newMinus" class="form-control" rows="2" placeholder="Co jest na minus?"></textarea>
+                                <textarea id="newMinus" class="form-control" rows="2" placeholder="Co wymaga poprawy?"></textarea>
                             </div>
                             <div class="col-12 text-end">
-                                <button id="saveBtn" class="btn btn-primary">Opublikuj opinię</button>
+                                <button id="saveBtn" class="btn btn-primary px-4">Dodaj opinię</button>
                             </div>
                         </div>
                     </div>
@@ -144,18 +138,34 @@ code: `
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const Facilities = [
-    { id: 1, nazwa: "Szkoła Podstawowa nr 94 im. I Marszałka Polski Józefa Piłsudskiego", typ: "szkola", status: "publiczna", ulica: "ul. Cietrzewia 22", telefon: "22 863 73 04", opinie: [] },
-    { id: 2, nazwa: "Szkoła Podstawowa nr 66 im. ks. Juliana Chrościckiego", typ: "szkola", status: "publiczna", ulica: "ul. Przepiórki 16/18", telefon: "22 863 82 18", opinie: [] },
-    { id: 3, nazwa: "Szkoła Podstawowa nr 359", typ: "szkola", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
-    { id: 4, nazwa: "LXXIII Liceum Ogólnokształcące im. Władysława Reymonta", typ: "liceum", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
-    { id: 5, nazwa: "XXI Liceum Ogólnokształcące im. Hugona Kołłątaja", typ: "liceum", status: "publiczna", ulica: "ul. Grójecka 93 (blisko granicy Włoch)", telefon: "22 822 15 14", opinie: [] },
-    { id: 6, nazwa: "Przedszkole nr 175", typ: "przedszkole", status: "publiczna", ulica: "ul. Astronautów 5", telefon: "22 846 19 14", opinie: [] },
-    { id: 7, nazwa: "Przedszkole nr 71", typ: "przedszkole", status: "publiczna", ulica: "ul. Geodetów 7", telefon: "22 846 25 12", opinie: [] },
-    { id: 8, nazwa: "Żłobek nr 32", typ: "zlobek", status: "publiczna", ulica: "ul. Chrościckiego 14/16", telefon: "22 863 71 10", opinie: [] },
-    { id: 9, nazwa: "Niepubliczne Przedszkole Tęczowy Ogród", typ: "przedszkole", status: "prywatna", ulica: "ul. Hynka 4", telefon: "22 123 45 67", opinie: [] }
+    // SZKOŁY PODSTAWOWE
+    { id: 1, nazwa: "Szkoła Podstawowa nr 94 im. I Marszałka Polski Józefa Piłsudskiego", typ: "szkola", status: "publiczna", ulica: "ul. Cietrzewia 22a", telefon: "22 863 73 12", opinie: [] },
+    { id: 2, nazwa: "Szkoła Podstawowa nr 66 im. ks. Juliana Chrościckiego", typ: "szkola", status: "publiczna", ulica: "ul. Przepiórki 16/18", telefon: "22 863 10 21", opinie: [] },
+    { id: 3, nazwa: "Szkoła Podstawowa nr 227 im. kpt. Lucyny Hertz", typ: "szkola", status: "publiczna", ulica: "ul. Astronautów 17", telefon: "22 846 03 81", opinie: [] },
+    { id: 4, nazwa: "Szkoła Podstawowa nr 87 im. 7 PP AK 'Garłuch'", typ: "szkola", status: "publiczna", ulica: "ul. Malownicza 31", telefon: "22 846 04 29", opinie: [] },
+    { id: 5, nazwa: "Szkoła Podstawowa nr 359", typ: "szkola", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
+    { id: 6, nazwa: "Społeczna Szkoła Podstawowa nr 30 STO", typ: "szkola", status: "prywatna", ulica: "ul. Astronautów 11", telefon: "22 846 01 62", opinie: [] },
+    { id: 7, nazwa: "Chrześcijańska Szkoła Podstawowa 'Samuel'", typ: "szkola", status: "prywatna", ulica: "ul. Krakowiaków 80/98", telefon: "22 886 51 52", opinie: [] },
+
+    // LICEA
+    { id: 8, nazwa: "LXXIII Liceum Ogólnokształcące im. Władysława Reymonta", typ: "liceum", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
+    { id: 9, nazwa: "Technikum nr 20 (Zespół Szkół im. Bohaterów Narwiku)", typ: "liceum", status: "publiczna", ulica: "ul. Gładka 16", telefon: "22 846 34 11", opinie: [] },
+
+    // PRZEDSZKOLA
+    { id: 10, nazwa: "Przedszkole nr 175", typ: "przedszkole", status: "publiczna", ulica: "ul. Astronautów 5", telefon: "22 846 19 14", opinie: [] },
+    { id: 11, nazwa: "Przedszkole nr 71", typ: "przedszkole", status: "publiczna", ulica: "ul. Geodetów 7", telefon: "22 846 25 12", opinie: [] },
+    { id: 12, nazwa: "Przedszkole nr 60", typ: "przedszkole", status: "publiczna", ulica: "ul. Ryżowa 17", telefon: "22 863 83 13", opinie: [] },
+    { id: 13, nazwa: "Przedszkole nr 313", typ: "przedszkole", status: "publiczna", ulica: "ul. Jasińskiego 2", telefon: "22 863 75 15", opinie: [] },
+    { id: 14, nazwa: "Przedszkole nr 419", typ: "przedszkole", status: "publiczna", ulica: "ul. Ryżowa 17 (filia)", telefon: "22 863 83 13", opinie: [] },
+    { id: 15, nazwa: "Niepubliczne Przedszkole 'Tęczowy Ogród'", typ: "przedszkole", status: "prywatna", ulica: "ul. Hynka 4", telefon: "22 403 55 55", opinie: [] },
+
+    // ŻŁOBKI
+    { id: 16, nazwa: "Żłobek nr 32", typ: "zlobek", status: "publiczna", ulica: "ul. Chrościckiego 14/16", telefon: "22 863 71 10", opinie: [] },
+    { id: 17, nazwa: "Żłobek nr 65", typ: "zlobek", status: "publiczna", ulica: "ul. Astronautów 3", telefon: "22 846 19 14", opinie: [] },
+    { id: 18, nazwa: "Żłobek nr 72", typ: "zlobek", status: "publiczna", ulica: "ul. 1 Sierpnia 36a", telefon: "22 846 34 11", opinie: [] }
 ];
 
-const LS_KEY = "wlochy_edu_opinie";
+const LS_KEY = "wlochy_edu_v2";
 let currentId = null;
 
 function getLocalOpinions() {
@@ -197,27 +207,28 @@ function render() {
     list.innerHTML = filtered.map(f => {
         const avg = getAvg(f.id);
         const count = getAllOpinions(f.id).length;
-        const badgeClass = "badge-type-" + f.typ;
-        const statusClass = "badge-status-" + f.status;
+        const typeLabel = {zlobek: "Żłobek", przedszkole: "Przedszkole", szkola: "Podstawówka", liceum: "Liceum/Technikum"}[f.typ];
         
-        return \`
+        return `
             <div class="col">
-                <div class="card facility-card h-100" onclick="openModal(\${f.id})">
+                <div class="card facility-card h-100 shadow-sm" onclick="openModal(${f.id})">
                     <div class="card-body">
-                        <span class="badge \${badgeClass} mb-2">\${f.typ.toUpperCase()}</span>
-                        <span class="badge \${statusClass} mb-2">\${f.status}</span>
-                        <h6 class="card-title fw-bold">\${f.nazwa}</h6>
-                        <p class="small text-muted mb-3">\${f.ulica}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="rating-pill \${avg >= 4 ? 'rating-good' : (avg >= 3 ? 'rating-mid' : 'rating-bad')}">
-                                \${avg > 0 ? avg.toFixed(1) + ' / 5' : 'Brak ocen'}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="badge badge-type-${f.typ}">${typeLabel}</span>
+                            <span class="badge badge-status-${f.status}">${f.status}</span>
+                        </div>
+                        <h6 class="card-title fw-bold mb-1">${f.nazwa}</h6>
+                        <p class="small text-muted mb-3"><i class="bi bi-geo-alt"></i> ${f.ulica}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="rating-pill ${avg >= 4 ? 'rating-good' : (avg >= 3 ? 'rating-mid' : (avg > 0 ? 'rating-bad' : 'bg-light text-muted'))}">
+                                ${avg > 0 ? avg.toFixed(1) + ' / 5' : 'Brak ocen'}
                             </span>
-                            <small class="text-muted">\${count} opinii</small>
+                            <small class="text-muted fw-bold">${count} opinii</small>
                         </div>
                     </div>
                 </div>
             </div>
-        \`;
+        `;
     }).join("");
 }
 
@@ -225,10 +236,14 @@ window.openModal = (id) => {
     currentId = id;
     const f = Facilities.find(x => x.id === id);
     document.getElementById("facilityModalLabel").innerText = f.nazwa;
-    document.getElementById("facilityInfo").innerHTML = \`
-        <p class="mb-1"><b>Adres:</b> \${f.ulica}, Warszawa-Włochy</p>
-        <p class="mb-0"><b>Telefon:</b> \${f.telefon}</p>
-    \`;
+    document.getElementById("facilityDetails").innerHTML = `
+        <div class="row">
+            <div class="col-sm-6"><b>Adres:</b> ${f.ulica}</div>
+            <div class="col-sm-6"><b>Telefon:</b> ${f.telefon}</div>
+            <div class="col-sm-6"><b>Typ:</b> ${f.typ.toUpperCase()}</div>
+            <div class="col-sm-6"><b>Status:</b> ${f.status}</div>
+        </div>
+    `;
     renderOpinions();
     new bootstrap.Modal(document.getElementById('facilityModal')).show();
 };
@@ -237,29 +252,27 @@ function renderOpinions() {
     const ops = getAllOpinions(currentId);
     const container = document.getElementById("opinionsList");
     if (!ops.length) {
-        container.innerHTML = "<p class='text-muted'>Brak opinii. Bądź pierwszy!</p>";
+        container.innerHTML = "<div class='alert alert-light text-center'>Brak opinii. Dodaj pierwszą!</div>";
         return;
     }
-    container.innerHTML = ops.map(o => \`
-        <div class="opinion-card p-3 bg-white">
-            <div class="d-flex justify-content-between">
-                <span class="badge bg-primary">Ocena: \${o.ocena}/5</span>
-                <small class="text-muted">\${o.data}</small>
+    container.innerHTML = ops.map(o => `
+        <div class="opinion-card p-3 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary">Ocena: ${o.ocena}/5</span>
+                <small class="text-muted">${o.data}</small>
             </div>
-            <div class="mt-2">
-                <p class="mb-1 text-success small"><b>+</b> \${o.plusy}</p>
-                <p class="mb-0 text-danger small"><b>-</b> \${o.minusy || 'Brak uwag'}</p>
-            </div>
+            <p class="mb-1 text-success"><b>+</b> ${o.plusy}</p>
+            ${o.minusy ? `<p class="mb-0 text-danger"><b>-</b> ${o.minusy}</p>` : ''}
         </div>
-    \`).reverse().join("");
+    `).reverse().join("");
 }
 
 document.getElementById("saveBtn").onclick = () => {
-    const plus = document.getElementById("newPlus").value;
-    const minus = document.getElementById("newMinus").value;
+    const plus = document.getElementById("newPlus").value.trim();
+    const minus = document.getElementById("newMinus").value.trim();
     const rating = parseInt(document.getElementById("newRating").value);
     
-    if (!plus) return alert("Wpisz chociaż jeden plus!");
+    if (!plus) return alert("Napisz chociaż krótki plus!");
 
     const local = getLocalOpinions();
     if (!local[currentId]) local[currentId] = [];
@@ -268,7 +281,7 @@ document.getElementById("saveBtn").onclick = () => {
         ocena: rating,
         plusy: plus,
         minusy: minus,
-        data: new Date().toLocaleDateString()
+        data: new Date().toLocaleDateString('pl-PL')
     });
 
     localStorage.setItem(LS_KEY, JSON.stringify(local));
