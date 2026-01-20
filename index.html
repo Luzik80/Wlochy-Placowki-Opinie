@@ -1,0 +1,290 @@
+language: jsx
+name: "Wyszukiwarka Placówek Edukacyjnych - Włochy"
+code: `
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edukacja Włochy – Wyszukiwarka i Opinie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        .app-header { 
+            background: linear-gradient(135deg, #0044cc, #00cc99); 
+            color: #fff; 
+            padding: 2.5rem 1rem; 
+            margin-bottom: 2rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .facility-card { 
+            transition: all 0.2s ease; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .facility-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
+        }
+        .badge-type-zlobek { background-color: #6f42c1; }
+        .badge-type-przedszkole { background-color: #fd7e14; }
+        .badge-type-szkola { background-color: #198754; }
+        .badge-type-liceum { background-color: #0d6efd; }
+        .badge-status-publiczna { background-color: #6c757d; }
+        .badge-status-prywatna { background-color: #20c997; }
+        
+        .rating-pill { border-radius: 20px; padding: 0.3rem 0.8rem; font-weight: bold; }
+        .rating-good { background-color: #d1e7dd; color: #0f5132; }
+        .rating-mid { background-color: #fff3cd; color: #664d03; }
+        .rating-bad { background-color: #f8d7da; color: #842029; }
+        
+        .opinion-card { border-radius: 12px; border: 1px solid #eee; margin-bottom: 1rem; }
+        .tag-badge { font-size: 0.7rem; margin-right: 4px; }
+    </style>
+</head>
+<body>
+
+<header class="app-header text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Edukacja we Włochach</h1>
+        <p class="lead">Wyszukiwarka żłobków, przedszkoli i szkół w Twojej okolicy</p>
+    </div>
+</header>
+
+<main class="container mb-5">
+    <!-- FILTRY -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Szukaj placówki</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="np. SP 94, Cietrzewia, Tęczowy...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Typ</label>
+                    <select id="typeFilter" class="form-select">
+                        <option value="">Wszystkie</option>
+                        <option value="zlobek">Żłobki</option>
+                        <option value="przedszkole">Przedszkola</option>
+                        <option value="szkola">Szkoły Podstawowe</option>
+                        <option value="liceum">Szkoły Ponadpodstawowe</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">Wszystkie</option>
+                        <option value="publiczna">Publiczne</option>
+                        <option value="prywatna">Niepubliczne</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Sortuj</label>
+                    <select id="sortSelect" class="form-select">
+                        <option value="ratingDesc">Najlepsze oceny</option>
+                        <option value="opinionsDesc">Najwięcej opinii</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LISTA -->
+    <div id="facilitiesList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- JS wstrzyknie karty -->
+    </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal fade" id="facilityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="facilityModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="facilityInfo" class="mb-4"></div>
+                <hr>
+                <h6 class="fw-bold mb-3">Opinie rodziców i uczniów:</h6>
+                <div id="opinionsList"></div>
+                
+                <div class="card bg-light mt-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold">Dodaj swoją opinię (Lokalnie)</h6>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select id="newRating" class="form-select">
+                                    <option value="5">5 (Super)</option>
+                                    <option value="4">4 (Dobrze)</option>
+                                    <option value="3">3 (Średnio)</option>
+                                    <option value="2">2 (Słabo)</option>
+                                    <option value="1">1 (Odradzam)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" id="newPlus" class="form-control" placeholder="Co jest na plus?">
+                            </div>
+                            <div class="col-12">
+                                <textarea id="newMinus" class="form-control" rows="2" placeholder="Co jest na minus?"></textarea>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button id="saveBtn" class="btn btn-primary">Opublikuj opinię</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const Facilities = [
+    { id: 1, nazwa: "Szkoła Podstawowa nr 94 im. I Marszałka Polski Józefa Piłsudskiego", typ: "szkola", status: "publiczna", ulica: "ul. Cietrzewia 22", telefon: "22 863 73 04", opinie: [] },
+    { id: 2, nazwa: "Szkoła Podstawowa nr 66 im. ks. Juliana Chrościckiego", typ: "szkola", status: "publiczna", ulica: "ul. Przepiórki 16/18", telefon: "22 863 82 18", opinie: [] },
+    { id: 3, nazwa: "Szkoła Podstawowa nr 359", typ: "szkola", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
+    { id: 4, nazwa: "LXXIII Liceum Ogólnokształcące im. Władysława Reymonta", typ: "liceum", status: "publiczna", ulica: "ul. Promienista 12a", telefon: "22 863 12 34", opinie: [] },
+    { id: 5, nazwa: "XXI Liceum Ogólnokształcące im. Hugona Kołłątaja", typ: "liceum", status: "publiczna", ulica: "ul. Grójecka 93 (blisko granicy Włoch)", telefon: "22 822 15 14", opinie: [] },
+    { id: 6, nazwa: "Przedszkole nr 175", typ: "przedszkole", status: "publiczna", ulica: "ul. Astronautów 5", telefon: "22 846 19 14", opinie: [] },
+    { id: 7, nazwa: "Przedszkole nr 71", typ: "przedszkole", status: "publiczna", ulica: "ul. Geodetów 7", telefon: "22 846 25 12", opinie: [] },
+    { id: 8, nazwa: "Żłobek nr 32", typ: "zlobek", status: "publiczna", ulica: "ul. Chrościckiego 14/16", telefon: "22 863 71 10", opinie: [] },
+    { id: 9, nazwa: "Niepubliczne Przedszkole Tęczowy Ogród", typ: "przedszkole", status: "prywatna", ulica: "ul. Hynka 4", telefon: "22 123 45 67", opinie: [] }
+];
+
+const LS_KEY = "wlochy_edu_opinie";
+let currentId = null;
+
+function getLocalOpinions() {
+    return JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+}
+
+function getAllOpinions(fId) {
+    const facility = Facilities.find(f => f.id === fId);
+    const local = getLocalOpinions()[fId] || [];
+    return [...(facility.opinie || []), ...local];
+}
+
+function getAvg(fId) {
+    const ops = getAllOpinions(fId);
+    if (!ops.length) return 0;
+    return ops.reduce((a, b) => a + b.ocena, 0) / ops.length;
+}
+
+function render() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const type = document.getElementById("typeFilter").value;
+    const status = document.getElementById("statusFilter").value;
+    const sort = document.getElementById("sortSelect").value;
+
+    let filtered = Facilities.filter(f => {
+        const matchesSearch = f.nazwa.toLowerCase().includes(search) || f.ulica.toLowerCase().includes(search);
+        const matchesType = !type || f.typ === type;
+        const matchesStatus = !status || f.status === status;
+        return matchesSearch && matchesType && matchesStatus;
+    });
+
+    filtered.sort((a, b) => {
+        if (sort === "ratingDesc") return getAvg(b.id) - getAvg(a.id);
+        if (sort === "opinionsDesc") return getAllOpinions(b.id).length - getAllOpinions(a.id).length;
+        return 0;
+    });
+
+    const list = document.getElementById("facilitiesList");
+    list.innerHTML = filtered.map(f => {
+        const avg = getAvg(f.id);
+        const count = getAllOpinions(f.id).length;
+        const badgeClass = "badge-type-" + f.typ;
+        const statusClass = "badge-status-" + f.status;
+        
+        return \`
+            <div class="col">
+                <div class="card facility-card h-100" onclick="openModal(\${f.id})">
+                    <div class="card-body">
+                        <span class="badge \${badgeClass} mb-2">\${f.typ.toUpperCase()}</span>
+                        <span class="badge \${statusClass} mb-2">\${f.status}</span>
+                        <h6 class="card-title fw-bold">\${f.nazwa}</h6>
+                        <p class="small text-muted mb-3">\${f.ulica}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="rating-pill \${avg >= 4 ? 'rating-good' : (avg >= 3 ? 'rating-mid' : 'rating-bad')}">
+                                \${avg > 0 ? avg.toFixed(1) + ' / 5' : 'Brak ocen'}
+                            </span>
+                            <small class="text-muted">\${count} opinii</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        \`;
+    }).join("");
+}
+
+window.openModal = (id) => {
+    currentId = id;
+    const f = Facilities.find(x => x.id === id);
+    document.getElementById("facilityModalLabel").innerText = f.nazwa;
+    document.getElementById("facilityInfo").innerHTML = \`
+        <p class="mb-1"><b>Adres:</b> \${f.ulica}, Warszawa-Włochy</p>
+        <p class="mb-0"><b>Telefon:</b> \${f.telefon}</p>
+    \`;
+    renderOpinions();
+    new bootstrap.Modal(document.getElementById('facilityModal')).show();
+};
+
+function renderOpinions() {
+    const ops = getAllOpinions(currentId);
+    const container = document.getElementById("opinionsList");
+    if (!ops.length) {
+        container.innerHTML = "<p class='text-muted'>Brak opinii. Bądź pierwszy!</p>";
+        return;
+    }
+    container.innerHTML = ops.map(o => \`
+        <div class="opinion-card p-3 bg-white">
+            <div class="d-flex justify-content-between">
+                <span class="badge bg-primary">Ocena: \${o.ocena}/5</span>
+                <small class="text-muted">\${o.data}</small>
+            </div>
+            <div class="mt-2">
+                <p class="mb-1 text-success small"><b>+</b> \${o.plusy}</p>
+                <p class="mb-0 text-danger small"><b>-</b> \${o.minusy || 'Brak uwag'}</p>
+            </div>
+        </div>
+    \`).reverse().join("");
+}
+
+document.getElementById("saveBtn").onclick = () => {
+    const plus = document.getElementById("newPlus").value;
+    const minus = document.getElementById("newMinus").value;
+    const rating = parseInt(document.getElementById("newRating").value);
+    
+    if (!plus) return alert("Wpisz chociaż jeden plus!");
+
+    const local = getLocalOpinions();
+    if (!local[currentId]) local[currentId] = [];
+    
+    local[currentId].push({
+        ocena: rating,
+        plusy: plus,
+        minusy: minus,
+        data: new Date().toLocaleDateString()
+    });
+
+    localStorage.setItem(LS_KEY, JSON.stringify(local));
+    document.getElementById("newPlus").value = "";
+    document.getElementById("newMinus").value = "";
+    renderOpinions();
+    render();
+};
+
+document.getElementById("searchInput").oninput = render;
+document.getElementById("typeFilter").onchange = render;
+document.getElementById("statusFilter").onchange = render;
+document.getElementById("sortSelect").onchange = render;
+
+render();
+</script>
+</body>
+</html>
+`
